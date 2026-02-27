@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Advanced Login Page</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#4e73df,#1cc88a);
+}
+.container{
+  background:#fff;
+  width:380px;
+  padding:25px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+h2{text-align:center;margin-bottom:15px}
+.input-group{margin-bottom:12px}
+input{
+  width:100%;
+  padding:8px;
+  border:1px solid #ccc;
+  border-radius:6px;
+}
+button{
+  padding:7px 10px;
+  margin-top:5px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  background:#4e73df;
+  color:#fff;
+}
+button:hover{opacity:0.9}
+.small-btn{
+  width:100%;
+}
+.status{
+  font-size:13px;
+  margin-top:3px;
+}
+.success{color:green}
+.error{color:red}
+.captcha-box{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:5px;
+}
+.login-btn{
+  width:100%;
+  margin-top:15px;
+  padding:10px;
+  background:#1cc88a;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Login</h2>
+
+<!-- Username -->
+<div class="input-group">
+<input type="text" id="username" placeholder="Username">
+<div id="userError" class="status error"></div>
+</div>
+
+<!-- Password -->
+<div class="input-group">
+<input type="password" id="password" placeholder="Password">
+<div id="passError" class="status error"></div>
+</div>
+
+<!-- Mobile OTP -->
+<div class="input-group">
+<input type="text" id="mobile" placeholder="Mobile Number">
+<button class="small-btn" onclick="sendMobileOTP()">Send Mobile OTP</button>
+<input type="text" id="mobileOtpInput" placeholder="Enter Mobile OTP">
+<button class="small-btn" onclick="verifyMobileOTP()">Verify Mobile OTP</button>
+<div id="mobileStatus" class="status"></div>
+</div>
+
+<!-- Email OTP -->
+<div class="input-group">
+<input type="email" id="email" placeholder="Email">
+<button class="small-btn" onclick="sendEmailOTP()">Send Email OTP</button>
+<input type="text" id="emailOtpInput" placeholder="Enter Email OTP">
+<button class="small-btn" onclick="verifyEmailOTP()">Verify Email OTP</button>
+<div id="emailStatus" class="status"></div>
+</div>
+
+<!-- CAPTCHA -->
+<div class="input-group">
+<div class="captcha-box">
+<span id="captchaText"></span>
+<button onclick="generateCaptcha()">↻</button>
+</div>
+<input type="text" id="captchaInput" placeholder="Enter CAPTCHA">
+<div id="captchaError" class="status error"></div>
+</div>
+
+<button class="login-btn" onclick="login()">Login</button>
+<div id="finalStatus" class="status success"></div>
+
+</div>
+
+<script>
+let mobileOTP = "";
+let emailOTP = "";
+let mobileVerified = false;
+let emailVerified = false;
+let captchaValue = "";
+
+// Generate OTP
+function generateOTP(){
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+// Mobile OTP
+function sendMobileOTP(){
+  let mobile = document.getElementById("mobile").value.trim();
+  if(mobile.length !== 10){
+    document.getElementById("mobileStatus").innerHTML="<span class='error'>Enter valid mobile</span>";
+    return;
+  }
+  mobileOTP = generateOTP();
+  alert("Mobile OTP: " + mobileOTP); // demo purpose
+  document.getElementById("mobileStatus").innerHTML="OTP Sent!";
+}
+
+function verifyMobileOTP(){
+  let entered = document.getElementById("mobileOtpInput").value;
+  if(entered === mobileOTP){
+    mobileVerified = true;
+    document.getElementById("mobileStatus").innerHTML="<span class='success'>Mobile Verified ✓</span>";
+  } else {
+    document.getElementById("mobileStatus").innerHTML="<span class='error'>Wrong OTP</span>";
+  }
+}
+
+// Email OTP
+function sendEmailOTP(){
+  let email = document.getElementById("email").value.trim();
+  if(!email.includes("@")){
+    document.getElementById("emailStatus").innerHTML="<span class='error'>Enter valid email</span>";
+    return;
+  }
+  emailOTP = generateOTP();
+  alert("Email OTP: " + emailOTP); // demo purpose
+  document.getElementById("emailStatus").innerHTML="OTP Sent!";
+}
+
+function verifyEmailOTP(){
+  let entered = document.getElementById("emailOtpInput").value;
+  if(entered === emailOTP){
+    emailVerified = true;
+    document.getElementById("emailStatus").innerHTML="<span class='success'>Email Verified ✓</span>";
+  } else {
+    document.getElementById("emailStatus").innerHTML="<span class='error'>Wrong OTP</span>";
+  }
+}
+
+// CAPTCHA
+function generateCaptcha(){
+  captchaValue = Math.random().toString(36).substring(2,7);
+  document.getElementById("captchaText").innerText=captchaValue;
+}
+generateCaptcha();
+
+// Login
+function login(){
+  let username = document.getElementById("username").value.trim();
+  let password = document.getElementById("password").value.trim();
+  let captchaInput = document.getElementById("captchaInput").value.trim();
+
+  document.getElementById("userError").innerText="";
+  document.getElementById("passError").innerText="";
+  document.getElementById("captchaError").innerText="";
+  document.getElementById("finalStatus").innerText="";
+
+  if(username===""){
+    document.getElementById("userError").innerText="Username required";
+    return;
+  }
+
+  if(password.length<6){
+    document.getElementById("passError").innerText="Password min 6 characters";
+    return;
+  }
+
+  if(!(mobileVerified || emailVerified)){
+    alert("Verify Mobile OR Email first!");
+    return;
+  }
+
+  if(captchaInput !== captchaValue){
+    document.getElementById("captchaError").innerText="Wrong CAPTCHA";
+    return;
+  }
+
+  document.getElementById("finalStatus").innerText="Login Successful 🎉";
+}
+</script>
+
+</body>
+</html>
